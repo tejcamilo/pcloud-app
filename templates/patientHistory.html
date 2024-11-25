@@ -10,14 +10,24 @@
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <th>Detalle</th>
+                    <th>Imagen</th>
+                    <th>Descripción</th>
                 </tr>
             </thead>
             <tbody>
                 {% for entry in history %}
                     <tr>
                         <td>{{ entry.date }}</td>
-                        <td>{{ entry.details }}</td>
+                        <td>
+                            {% if entry.image %}
+                                <a href="{{ entry.image }}" target="_blank">
+                                    <img src="{{ entry.image }}" alt="Imagen del historial">
+                                </a>
+                            {% else %}
+                                No image
+                            {% endif %}
+                        </td>
+                        <td>{{ entry.description }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

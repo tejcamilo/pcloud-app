@@ -8,6 +8,7 @@ app.secret_key = 'your_secret_key'  # Used for session management
 client = MongoClient('mongodb://localhost:27017/')
 db = client['healthcare']
 patients_collection = db['patients']
+history_collection = db['images']  # New collection for patient history
 
 # Simulated database for users
 users = {"admin": "admin"}  # Replace with a real authentication mechanism
@@ -60,13 +61,22 @@ def patientHistory(patient_id):
     
     patient = patients_collection.find_one({"id": patient_id})
     if not patient:
-        flash("Paciente no encontrado", "danger")
+        flash("Patient not found", "danger")
         return redirect(url_for('patientList'))
     
-    # Assuming patient history is stored in a field called 'history'
-    history = patient.get('history', [])
+    # Fetch patient history from the new collection
+    history = history_collection.find({"patient_id": patient_id})
     
-    return render_template('patientHistory.html', patient=patient, history=history)
+    # Fetch image and description from the new collection
+    history_details = []
+    for entry in history:
+        history_details.append({
+            "date": entry.get("timestamp"),
+            "image": entry.get("image_url"),
+            "description": entry.get("description")
+        })
+    
+    return render_template('patientHistory.html', patient=patient, history=history_details)
 
 # Route for logout
 @app.route('/logout')
@@ -76,4 +86,4 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
