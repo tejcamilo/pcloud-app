@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Info{% endblock %}
+
+{% block content %}
+<div class="main">
+    <div class="container">
+        <h2>Información del paciente</h2>
+        <table class="patient-info-table">
+            <tr>
+                <th>ID</th>
+                <td>{{ patient.id }}</td>
+            </tr>
+            <tr>
+                <th>Nombre</th>
+                <td>{{ patient.first_name }}</td>
+            </tr>
+            <tr>
+                <th>Apellido</th>
+                <td>{{ patient.last_name }}</td>
+            </tr>
+            <tr>
+                <th>Edad</th>
+                <td>{{ patient.age }}</td>
+            </tr>
+            <tr>
+                <th># Habitación</th>
+                <td>{{ patient.room }}</td>
+            </tr>
+            <tr>
+                <th>Contacto</th>
+                <td>{{ patient.contact }}</td>
+            </tr>
+            <tr>
+                <th>Ver historial</th>
+                <td><a href="{{ url_for('patientHistory', patient_id=patient.id) }}">Historial</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

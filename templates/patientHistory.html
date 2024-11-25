@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Patient History{% endblock %}
+
+{% block content %}
+<div class="main">
+    <div class="container">
+        <h2>Historial del paciente {{ patient.first_name }} {{ patient.last_name }}</h2>
+        <table class="patient-history-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in history %}
+                    <tr>
+                        <td>{{ entry.date }}</td>
+                        <td>{{ entry.details }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

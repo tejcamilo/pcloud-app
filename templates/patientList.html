@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Patient List{% endblock %}
+
+{% block content %}
+<div class="table-container">
+    <h2>Lista de Pacientes</h2>
+    <table id="patientTable" class="display">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>ID</th>
+                <th class="center">Edad</th>
+                <th class="center"># Habitación</th>
+                <th class="center">Contacto</th>
+                <th class="center">Ver Paciente</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+                <tr>
+                    <td>{{ patient.first_name }}</td>
+                    <td>{{ patient.last_name }}</td>
+                    <td>{{ patient.id }}</td>
+                    <td class="center">{{ patient.age }}</td>
+                    <td class="center">{{ patient.room }}</td>
+                    <td class="center">{{ patient.contact }}</td>
+                    <td class="center"><a href="{{ url_for('patientInfo', patient_id=patient.id) }}">View Patient</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Include DataTables CSS and JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#patientTable').DataTable();
+    });
+</script>
+{% endblock %}

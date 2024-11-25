@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="main">
+    <div class="container">
+        <img src="../static/login.png" alt="">
+        <form method="POST">
+            <div class="warning">
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                            {% for category, message in messages %}
+                                </strong> {{ message }}
+                            {% endfor %}
+    
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <label for="username"></label>
+            <input type="text" name="username" placeholder="Usuario" required>
+            <br>
+            <label for="password"></label>
+            <input type="password" name="password" placeholder="Contraseña" required>
+            <br><br>
+            <button type="submit">Iniciar Sesión</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
