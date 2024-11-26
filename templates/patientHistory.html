@@ -9,15 +9,15 @@
         <div class="patient-history-grid">
             {% for entry in history %}
                 <div class="history-entry">
-                    {% if entry.image %}
-                        <a href="{{ entry.image }}" target="_blank">
-                            <img src="{{ entry.image }}" alt="Imagen del historial">
+                    {% if entry.image_url %}
+                        <a href="{{ entry.image_url }}" target="_blank">
+                            <img src="{{ entry.image_url }}" alt="Imagen del historial">
                         </a>
                     {% else %}
                         <p>No image</p>
                     {% endif %}
                     <div class="history-details">
-                        <p><strong>Fecha:</strong> {{ entry.date }}</p>
+                        <p><strong>Fecha:</strong> {{ entry.timestamp }}</p>
                         <p><strong>Descripción:</strong> {{ entry.description }}</p>
                     </div>
                 </div>

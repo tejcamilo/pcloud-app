@@ -26,7 +26,7 @@
                     <td class="center">{{ patient.age }}</td>
                     <td class="center">{{ patient.room }}</td>
                     <td class="center">{{ patient.contact }}</td>
-                    <td class="center"><a href="{{ url_for('patientInfo', patient_id=patient.id) }}">View Patient</a></td>
+                    <td class="center"><a href="{{ url_for('patientInfo', patient_id=patient._id) }}">View Patient</a></td>
                 </tr>
             {% endfor %}
         </tbody>

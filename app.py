@@ -1,14 +1,28 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from pymongo import MongoClient
+from flask import Flask, render_template, request, redirect, url_for, session as flask_session, flash
+import boto3
+from boto3.dynamodb.conditions import Key
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Used for session management
 
-# MongoDB connection
-client = MongoClient('mongodb://localhost:27017/')
-db = client['healthcare']
-patients_collection = db['patients']
-history_collection = db['images']  # New collection for patient history
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize the DynamoDB resource with session token
+boto_session = boto3.Session(
+    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+    aws_session_token=os.getenv('AWS_SESSION_TOKEN'),
+    region_name=os.getenv('AWS_DEFAULT_REGION')
+)
+
+dynamodb = boto_session.resource('dynamodb')
+
+# Specify the table names
+patients_table = dynamodb.Table('patients')
+history_table = dynamodb.Table('history')  # New table for patient history
 
 # Simulated database for users
 users = {"admin": "admin"}  # Replace with a real authentication mechanism
@@ -21,7 +35,7 @@ def login():
         password = request.form['password']
 
         if username in users and users[username] == password:
-            session['username'] = username
+            flask_session['username'] = username
             return redirect(url_for('patientList'))
         else:
             flash("Usuario o contraseña inválido", "danger")
@@ -31,21 +45,23 @@ def login():
 # Route for patient list
 @app.route('/patients')
 def patientList():
-    if 'username' not in session:
+    if 'username' not in flask_session:
         flash("Por favor Inicie Sesión", "warning")
         return redirect(url_for('login'))
     
-    patients = patients_collection.find()
+    response = patients_table.scan()
+    patients = response['Items']
     return render_template('patientList.html', patients=patients)
 
 # Route for patient info
 @app.route('/patients/<patient_id>')
 def patientInfo(patient_id):
-    if 'username' not in session:
+    if 'username' not in flask_session:
         flash("Por favor Inicie Sesión", "warning")
         return redirect(url_for('login'))
     
-    patient = patients_collection.find_one({"id": patient_id})
+    response = patients_table.get_item(Key={'_id': patient_id})
+    patient = response.get('Item')
     if not patient:
         flash("Patient not found", "danger")
         return redirect(url_for('patientList'))
@@ -55,33 +71,31 @@ def patientInfo(patient_id):
 # Route for patient history
 @app.route('/patients/<patient_id>/history')
 def patientHistory(patient_id):
-    if 'username' not in session:
+    if 'username' not in flask_session:
         flash("Por favor Inicie Sesión", "warning")
         return redirect(url_for('login'))
     
-    patient = patients_collection.find_one({"id": patient_id})
+    response = patients_table.get_item(Key={'_id': patient_id})
+    patient = response.get('Item')
     if not patient:
         flash("Patient not found", "danger")
         return redirect(url_for('patientList'))
     
-    # Fetch patient history from the new collection
-    history = history_collection.find({"patient_id": patient_id})
+    # Fetch all patient history from the history table
+    response = history_table.scan()
+    history = response['Items']
+
+    # Filter history for the given patient_id
+    filtered_history = [entry for entry in history if entry.get('patient_id') == patient.get('id')]
+    print(filtered_history)
+
     
-    # Fetch image and description from the new collection
-    history_details = []
-    for entry in history:
-        history_details.append({
-            "date": entry.get("timestamp"),
-            "image": entry.get("image_url"),
-            "description": entry.get("description")
-        })
-    
-    return render_template('patientHistory.html', patient=patient, history=history_details)
+    return render_template('patientHistory.html', patient=patient, history=filtered_history)
 
 # Route for logout
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    flask_session.pop('username', None)
     flash("Ha cerrado sesión", "info")
     return redirect(url_for('login'))
 
